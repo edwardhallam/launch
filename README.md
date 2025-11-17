@@ -68,7 +68,7 @@ In your repository, go to **Settings > Secrets and variables > Actions** and add
 
 ```bash
 # Copy the service template
-cp -r services/_template services/my-service
+cp -r services/example-service services/my-service
 
 # Edit the deployment script
 nano services/my-service/deploy.sh
@@ -97,19 +97,24 @@ launch/
 │       ├── deploy.yml           # Main deployment workflow
 │       └── health-check.yml     # Daily health validation
 ├── services/
-│   ├── _template/               # Copy this for new services
-│   ├── example-docker/          # Docker Compose example
-│   └── example-lxc/             # LXC creation example
+│   └── example-service/         # Template for new services
+│       ├── deploy.sh            # Deployment script
+│       ├── health-check.sh      # Health validation
+│       ├── docker-compose.yml   # Docker config (if using Docker)
+│       └── README.md            # Service documentation
 ├── scripts/
 │   ├── deploy-docker.sh         # Deploy to Docker host
-│   ├── deploy-lxc.sh            # Create and configure LXC
-│   ├── deploy-vm.sh             # Deploy to existing VM
-│   └── health-check.sh          # Service health validation
+│   ├── deploy-lxc.sh            # Create and configure LXC (Phase 2)
+│   └── deploy-vm.sh             # Deploy to existing VM (Phase 2)
 ├── docs/
 │   ├── PRD.md                   # Product requirements
 │   ├── SETUP.md                 # Detailed setup guide
-│   ├── RUNBOOKS.md              # Operational procedures
-│   └── TROUBLESHOOTING.md       # Common issues and fixes
+│   ├── QUICKSTART.md            # 30-minute quick start
+│   ├── TROUBLESHOOTING.md       # Common issues and fixes
+│   ├── PROJECT-SUMMARY.md       # Project overview
+│   └── FILE-INDEX.md            # File reference guide
+├── TASKS.md                     # Task tracking for Claude Code
+├── CLAUDE.md                    # Instructions for Claude Code
 └── README.md                    # This file
 ```
 
@@ -258,11 +263,11 @@ See [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for more details.
 
 ## 📚 Documentation
 
-- **[PRD.md](PRD.md)** - Complete product requirements and architecture
+- **[PRD.md](docs/PRD.md)** - Complete product requirements and architecture
 - **[SETUP.md](docs/SETUP.md)** - Detailed setup instructions
-- **[RUNBOOKS.md](docs/RUNBOOKS.md)** - Operational procedures
+- **[QUICKSTART.md](docs/QUICKSTART.md)** - 30-minute quick start guide
 - **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Issue resolution
-- **[SERVICE-TEMPLATE.md](services/_template/README.md)** - Service creation guide
+- **[SERVICE-TEMPLATE.md](services/example-service/README.md)** - Service creation guide
 
 ## 🗺️ Roadmap
 
@@ -293,7 +298,7 @@ This is a personal project, but feel free to use it as a template for your own i
 
 ### Adding a New Service
 
-1. Copy `services/_template/` to `services/YOUR_SERVICE/`
+1. Copy `services/example-service/` to `services/YOUR_SERVICE/`
 2. Update `deploy.sh` with your deployment logic
 3. Add service-specific configuration
 4. Test locally first
