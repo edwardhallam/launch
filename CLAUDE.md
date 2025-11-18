@@ -4,10 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Launch is a zero-cost GitOps CI/CD platform that automates deployment of web services and MCP servers from GitHub to Proxmox infrastructure using self-hosted GitHub Actions runners. Built for homelab deployments with future AWS extensibility.
+Launch is a zero-cost GitOps CI/CD platform that automates deployment of web services and MCP servers from GitHub to both Proxmox homelab infrastructure and AWS cloud using self-hosted GitHub Actions runners. Built for multi-cloud deployments with environment-specific routing.
 
 **Key Characteristics:**
-- Self-hosted GitHub Actions runner eliminates costs (unlimited build minutes)
+- Self-hosted GitHub Actions runners in each environment eliminate costs (unlimited build minutes)
+- Multi-cloud architecture: homelab (Proxmox LXC 110) and AWS (EC2) runners
+- Environment-specific routing: services declare target, workflow routes to correct runner
 - Path-based service isolation: changes to `services/*/` trigger only that service's deployment
 - Multiple deployment targets: Docker Compose, LXC containers, direct VM installation
 - Deployed services are monitored via automated health checks
@@ -63,10 +65,15 @@ cd /opt/services/<service-name>
 docker-compose ps
 docker-compose logs
 
-# Check runner status
+# Check homelab runner status (LXC 110)
 ssh root@<proxmox-host>
-pct exec 200 -- systemctl status actions.runner
-pct exec 200 -- journalctl -u actions.runner -f
+pct exec 110 -- systemctl status actions.runner
+pct exec 110 -- journalctl -u actions.runner -f
+
+# Check AWS runner status (EC2)
+ssh ubuntu@<ec2-public-ip>
+sudo systemctl status actions.runner
+sudo journalctl -u actions.runner -f
 ```
 
 ## Architecture
@@ -85,10 +92,17 @@ pct exec 200 -- journalctl -u actions.runner -f
 ```
 GitHub Actions (orchestration)
     ↓ webhook
-Self-Hosted Runner (LXC 200)
-    ├─→ Proxmox API (create/manage LXC/VM)
-    ├─→ SSH (deploy to containers/VMs)
-    └─→ Docker API (container deployments)
+    ├─→ Homelab Runner (LXC 110)
+    │   ├─→ Proxmox API (create/manage LXC/VM)
+    │   ├─→ SSH (deploy to containers/VMs)
+    │   └─→ Docker API (local container deployments)
+    │
+    └─→ AWS Runner (EC2)
+        └─→ Docker API (local container deployments)
+
+Workflow routing based on service target configuration:
+- services/test-service/ → homelab runner (LXC 110)
+- services/librechat/ → AWS runner (EC2)
 ```
 
 ### Key Directories
@@ -105,10 +119,19 @@ Self-Hosted Runner (LXC 200)
 ### Secrets Management
 
 Required GitHub Secrets (repository settings):
+
+**Homelab (Proxmox):**
 - `PROXMOX_API_URL`: Proxmox API endpoint (`https://IP:8006/api2/json`)
 - `PROXMOX_API_TOKEN`: API token format `user@realm!tokenid=secret`
 - `SSH_PRIVATE_KEY`: SSH private key for deployments (injected at runtime)
 - `DOCKER_HOST_IP`: IP of Docker host LXC for container deployments
+
+**AWS:**
+- `AWS_REGION`: AWS region for deployments
+- Service-specific secrets (prefixed with service name or `AWS_`)
+
+**Service-Specific:**
+- Librechat: Database credentials, API keys, etc. (see services/librechat/README.md)
 
 **Critical**: Never commit secrets. Use GitHub Secrets for static credentials, 1Password CLI for dynamic secrets.
 
@@ -117,14 +140,17 @@ Required GitHub Secrets (repository settings):
 ### Creating a New Service
 
 1. Copy template: `cp -r services/example-service services/<name>`
-2. Choose deployment method in `deploy.sh`:
+2. Specify target environment (homelab or AWS):
+   - Add `target.txt` file with value `homelab` or `aws`
+   - Or use naming convention/workflow configuration
+3. Choose deployment method in `deploy.sh`:
    - **Docker Compose**: Uncomment `../../scripts/deploy-docker.sh` (requires `docker-compose.yml`)
-   - **LXC Creation**: Uncomment `../../scripts/deploy-lxc.sh` (not yet implemented - see FR4 in PRD.md)
-   - **VM Deployment**: Uncomment `../../scripts/deploy-vm.sh` (not yet implemented - see FR4 in PRD.md)
+   - **LXC Creation**: Uncomment `../../scripts/deploy-lxc.sh` (not yet implemented - see PRD.md Phase 2)
+   - **VM Deployment**: Uncomment `../../scripts/deploy-vm.sh` (not yet implemented - see PRD.md Phase 2)
    - **Custom**: Write deployment logic directly in `deploy.sh`
-3. Configure health check in `health-check.sh` (examples provided)
-4. Test locally before committing
-5. Push to `main` to trigger deployment
+4. Configure health check in `health-check.sh` (examples provided)
+5. Test locally before committing
+6. Push to `main` to trigger deployment (routes to correct runner based on target)
 
 ### Deployment Script Requirements
 
@@ -183,8 +209,8 @@ Required GitHub Secrets (repository settings):
 - LXC creation via Proxmox API not implemented (see PRD.md Phase 2)
 - VM SSH deployment helper not implemented (see PRD.md Phase 2)
 - No rollback automation (manual via re-running old commit)
-- No AWS support yet (see PRD.md Phase 3)
-- No notification integrations (Slack/Discord - see deploy.yml:160)
+- No automated health monitoring with alerting (see PRD.md Phase 2)
+- No notification integrations (Slack/Discord - see PRD.md Phase 3)
 
 ### File Structure Conventions
 
@@ -215,12 +241,22 @@ Required GitHub Secrets (repository settings):
 
 ## Project Status
 
-**Current Phase**: Foundation (Phase 1)
+**Current Phase**: Phase 1 - Foundation & Multi-Cloud Deployment
 - ✅ Repository structure complete
-- ✅ Documentation complete
+- ✅ Documentation updated for multi-cloud architecture
 - ✅ GitHub Actions workflows defined
 - ✅ Docker deployment method implemented
-- ⏳ Self-hosted runner setup (user action required)
-- ⏳ First service deployment (user action required)
+- ✅ Homelab runner (LXC 110) set up and operational
+- ⏳ AWS runner (EC2) setup in progress
+- ⏳ PR validation workflow implementation pending
+- ⏳ Test service deployment (homelab) pending
+- ⏳ Librechat deployment (AWS) pending
 
-**Next Steps**: Follow QUICKSTART.md to set up infrastructure and deploy first service
+**Next Steps**:
+1. Implement PR validation workflow (US-001)
+2. Create and deploy test service to homelab (US-002, US-003)
+3. Set up AWS runner on EC2 (US-005)
+4. Deploy Librechat to AWS (US-006, US-007, US-008)
+5. Configure Cloudflare Tunnel for chat.spicyeddie.com (US-011)
+
+See TASKS.md for detailed user stories and acceptance criteria.
