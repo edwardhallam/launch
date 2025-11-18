@@ -1,14 +1,14 @@
 # Product Requirements Document: Launch
 
-**Project Name:** Launch  
-**Version:** 1.0  
-**Date:** November 16, 2025  
-**Owner:** Eddie Hallam  
-**Status:** Initial Design
+**Project Name:** Launch
+**Version:** 1.1
+**Date:** November 18, 2025
+**Owner:** Eddie Hallam
+**Status:** Phase 1 - Foundation & Multi-Cloud Deployment
 
 ## Executive Summary
 
-Launch is a cost-effective GitOps CI/CD platform for automating deployment of web services and MCP servers from GitHub to Proxmox infrastructure (LXCs/VMs) with future AWS support. Built on GitHub Actions with self-hosted runners, it provides zero-cost automated deployments with detailed logging and failure tracking.
+Launch is a cost-effective GitOps CI/CD platform for automating deployment of web services and MCP servers from GitHub to both Proxmox homelab infrastructure (LXCs/VMs) and AWS cloud infrastructure. Built on GitHub Actions with self-hosted runners in each environment, it provides zero-cost automated deployments with detailed logging and failure tracking. The multi-cloud architecture enables seamless deployments to homelab and AWS using the same workflow and deployment patterns.
 
 ## Problem Statement
 
@@ -24,9 +24,9 @@ Current challenges:
 ### Primary Goals
 1. **Automated Deployment**: Push to main triggers automatic deployment per service
 2. **Service Isolation**: Each service independently deployed via path-based triggers
-3. **Cost Optimization**: Zero cost via self-hosted GitHub Actions runner
-4. **Homelab First**: Primary deployment to Proxmox LXCs/VMs
-5. **Cloud Ready**: Extensible to AWS EC2 for future needs
+3. **Multi-Cloud Architecture**: Seamless deployment to both homelab (Proxmox) and AWS using same patterns
+4. **Cost Optimization**: Zero incremental cost via self-hosted GitHub Actions runners
+5. **Environment-Agnostic Workflows**: Services declare target environment, workflow handles routing
 
 ### Success Metrics
 - Deployment time: < 5 minutes from push to production
@@ -396,51 +396,71 @@ services/my-service/
 
 ## Implementation Phases
 
-### Phase 1: Foundation (Week 1)
-**Goal:** Basic deployment pipeline working
+### Phase 1: Foundation & Multi-Cloud Deployment (Current)
+**Goal:** Basic deployment pipeline working with both homelab and AWS
 
+**Infrastructure Setup:**
 - [x] Create GitHub repository structure
-- [ ] Set up self-hosted runner LXC on Proxmox
-- [ ] Configure GitHub Actions workflow (basic)
-- [ ] Create example service with Docker deployment
-- [ ] Test end-to-end deployment
+- [x] Set up self-hosted runner on homelab (LXC 110 on Proxmox)
+- [ ] Set up self-hosted runner on AWS (EC2 instance)
+- [ ] Configure GitHub Actions workflow with multi-environment routing
+- [ ] Configure PR validation workflow
+
+**Homelab Deployment:**
+- [ ] Create test service with Docker deployment (homelab)
+- [ ] Deploy test service to LXC 110
+- [ ] Validate update workflow for test service
+- [ ] Test end-to-end homelab deployment
+
+**AWS Deployment (Production Priority):**
+- [ ] Create Librechat service configuration
+- [ ] Configure secrets for Librechat
+- [ ] Deploy Librechat to AWS EC2
+- [ ] Configure Cloudflare Tunnel for chat.spicyeddie.com
+- [ ] Test Librechat updates via PR workflow
+
+**Documentation:**
 - [ ] Document setup process
+- [ ] Create service creation guide
+- [ ] Document multi-environment architecture
 
 **Deliverables:**
-- Repository with initial structure
-- Working self-hosted runner
-- One service deploying successfully
-- Basic documentation
+- Repository with complete structure
+- Two working self-hosted runners (homelab + AWS)
+- Test service deployed on homelab
+- Librechat production service on AWS with public domain
+- Comprehensive documentation
 
-### Phase 2: Core Features (Week 2-3)
-**Goal:** Production-ready for multiple services
+### Phase 2: Enhanced Capabilities (Future)
+**Goal:** Production-ready for multiple services across environments
 
-- [ ] Path-based triggering for individual services
-- [ ] Health check scripts and workflow
 - [ ] Proxmox API integration for LXC creation
-- [ ] SSH-based deployment method
-- [ ] Comprehensive logging
-- [ ] Secrets management (1Password integration)
+- [ ] SSH-based deployment method for VMs
+- [ ] Enhanced health monitoring with alerting
+- [ ] Rollback automation
+- [ ] Secrets management via 1Password CLI
+- [ ] Deployment metrics and logging enhancements
 
 **Deliverables:**
-- 3-5 services deployed via different methods
-- Automated health monitoring
-- Complete deployment runbooks
+- Multiple deployment methods available (Docker, LXC, VM)
+- Automated health monitoring with GitHub Issues
+- 5+ services deployed across homelab and AWS
 
-### Phase 3: Enhancement (Week 4+)
-**Goal:** Advanced features and AWS support
+### Phase 3: Advanced Features (Future)
+**Goal:** Enterprise-grade deployment platform
 
-- [ ] Rollback automation
-- [ ] AWS EC2 deployment (proof of concept)
-- [ ] Parallel deployments
-- [ ] Deployment metrics/dashboard
+- [ ] Multi-region AWS support
+- [ ] Additional cloud providers (GCP, Azure)
+- [ ] Deployment metrics dashboard
 - [ ] Slack/Discord notifications
 - [ ] Service dependency management
+- [ ] Advanced rollback strategies
+- [ ] Multi-environment support (dev/staging/prod)
 
 **Deliverables:**
-- AWS deployment example
-- Notification system
-- Enhanced monitoring
+- Multi-cloud, multi-region deployment capability
+- Comprehensive monitoring and alerting
+- Advanced automation features
 
 ## Risks & Mitigations
 
@@ -455,23 +475,30 @@ services/my-service/
 
 ## Success Criteria
 
-**MVP Success (Phase 1):**
-- ✅ Self-hosted runner operational
-- ✅ 1 service deploys automatically on push
+**Phase 1 Success (Foundation & Multi-Cloud):**
+- ✅ Two self-hosted runners operational (homelab LXC 110 + AWS EC2)
+- ✅ PR validation workflow catching issues before merge
+- ✅ Test service deployed on homelab automatically on push
+- ✅ Librechat production service deployed on AWS
+- ✅ Cloudflare Tunnel exposing Librechat at chat.spicyeddie.com
+- ✅ Multi-environment routing working (services deploy to correct runner)
 - ✅ Deployment completes in < 5 minutes
 - ✅ Logs captured and accessible
+- ✅ Comprehensive documentation complete
 
-**Production Ready (Phase 2):**
-- ✅ 5+ services deployed
+**Phase 2 Success (Enhanced Capabilities):**
+- ✅ 5+ services deployed across homelab and AWS
 - ✅ 95% deployment success rate
-- ✅ Health monitoring operational
-- ✅ Zero cost operation
+- ✅ Health monitoring operational with GitHub Issues
+- ✅ Multiple deployment methods working (Docker, LXC, VM)
+- ✅ Rollback capability documented and tested
 
-**Full Feature (Phase 3):**
-- ✅ AWS deployment working
-- ✅ Rollback capability
-- ✅ Automated notifications
-- ✅ 10+ services managed
+**Phase 3 Success (Advanced Features):**
+- ✅ Multi-region AWS support
+- ✅ 10+ services managed across multiple cloud providers
+- ✅ Automated notifications (Slack/Discord)
+- ✅ Deployment metrics dashboard
+- ✅ Service dependency management
 
 ## Open Questions
 
@@ -533,6 +560,6 @@ apt install -y curl docker.io docker-compose
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** November 16, 2025  
+**Document Version:** 1.1
+**Last Updated:** November 18, 2025
 **Next Review:** December 1, 2025
