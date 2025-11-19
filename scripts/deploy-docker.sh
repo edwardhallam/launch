@@ -4,7 +4,9 @@
 # 
 # Environment variables:
 #   DOCKER_HOST_IP - IP address of Docker host LXC
-#   SERVICE_NAME - Name of the service being deployed
+#   SERVICE_NAME   - Name of the service being deployed
+#   SSH_USER       - SSH user (default: deploy)
+#   INSTALL_DIR    - Base directory for services (default: /opt/services)
 #
 # Usage: ./deploy-docker.sh
 
@@ -40,27 +42,36 @@ if [ -z "${SERVICE_NAME:-}" ]; then
     exit 1
 fi
 
-SERVICE_DIR="/opt/services/${SERVICE_NAME}"
-DOCKER_HOST="root@${DOCKER_HOST_IP}"
+# Defaults
+SSH_USER="${SSH_USER:-deploy}"
+BASE_DIR="${INSTALL_DIR:-/opt/services}"
+SERVICE_DIR="${BASE_DIR}/${SERVICE_NAME}"
+DOCKER_HOST="${SSH_USER}@${DOCKER_HOST_IP}"
 
-log_info "Deploying ${SERVICE_NAME} to Docker host ${DOCKER_HOST_IP}"
+log_info "Deploying ${SERVICE_NAME} to ${DOCKER_HOST}"
 
-# Check connectivity
-log_info "Checking connectivity to Docker host..."
-if ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no "${DOCKER_HOST}" "echo 'Connected'" &>/dev/null; then
-    log_error "Cannot connect to Docker host at ${DOCKER_HOST_IP}"
-    log_error "Check SSH key configuration and network connectivity"
+# Check connectivity and Host Key
+log_info "Checking connectivity..."
+
+# We do NOT use StrictHostKeyChecking=no anymore.
+# The runner must have the host key in known_hosts.
+if ! ssh -o ConnectTimeout=5 "${DOCKER_HOST}" "echo 'Connected'" &>/dev/null; then
+    log_error "Cannot connect to ${DOCKER_HOST}"
+    log_error "Possible reasons:"
+    log_error "1. Network connectivity issues"
+    log_error "2. SSH key not authorized for user '${SSH_USER}'"
+    log_error "3. Host key verification failed (Host key not in known_hosts)"
     exit 1
 fi
 
-# Create service directory on Docker host
-log_info "Creating service directory: ${SERVICE_DIR}"
+# Create service directory
+log_info "Ensuring service directory exists: ${SERVICE_DIR}"
 ssh "${DOCKER_HOST}" "mkdir -p ${SERVICE_DIR}"
 
 # Copy docker-compose.yml and related files
 log_info "Copying service files..."
 if [ -f "docker-compose.yml" ]; then
-    scp -r docker-compose.yml "${DOCKER_HOST}:${SERVICE_DIR}/"
+    scp docker-compose.yml "${DOCKER_HOST}:${SERVICE_DIR}/"
 else
     log_error "docker-compose.yml not found in current directory"
     exit 1

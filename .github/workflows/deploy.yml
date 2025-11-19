@@ -74,12 +74,43 @@ jobs:
           echo "Commit: ${{ github.sha }}"
           echo "Branch: ${{ github.ref }}"
 
+      - name: Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DOCKER_HOST_IP: ${{ secrets.DOCKER_HOST_IP }}
+          VM_HOST_IP: ${{ secrets.VM_HOST_IP }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # Add private key
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Add known hosts
+          # Note: In a strict environment, known_hosts should be stored in a secret
+          # For now, we scan keys to avoid interactive prompts, but this is TOFU (Trust On First Use)
+          echo "Scanning host keys..."
+          
+          if [ -n "$DOCKER_HOST_IP" ]; then
+            ssh-keyscan -H "$DOCKER_HOST_IP" >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+          
+          if [ -n "$VM_HOST_IP" ]; then
+            ssh-keyscan -H "$VM_HOST_IP" >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+          
+          chmod 600 ~/.ssh/known_hosts
+
       - name: Deploy ${{ matrix.service }}
         env:
           PROXMOX_API_URL: ${{ secrets.PROXMOX_API_URL }}
           PROXMOX_API_TOKEN: ${{ secrets.PROXMOX_API_TOKEN }}
           DOCKER_HOST_IP: ${{ secrets.DOCKER_HOST_IP }}
+          VM_HOST_IP: ${{ secrets.VM_HOST_IP }}
           SERVICE_NAME: ${{ matrix.service }}
+          SSH_USER: ${{ vars.SSH_USER || 'deploy' }}
+          INSTALL_DIR: ${{ vars.INSTALL_DIR || '/opt/services' }}
         run: |
           echo "🚀 Deploying ${{ matrix.service }}..."
           cd services/${{ matrix.service }}
@@ -145,6 +176,8 @@ jobs:
         run: |
           # Clean up temporary files if any
           rm -f services/${{ matrix.service }}/*.tmp
+          # Clean up SSH keys
+          rm -f ~/.ssh/id_ed25519
 
   notify:
     needs: deploy

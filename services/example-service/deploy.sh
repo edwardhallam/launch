@@ -6,10 +6,13 @@
 # Choose one of the deployment methods below or create your own
 #
 # Environment variables available:
-#   PROXMOX_API_URL - Proxmox API endpoint
+#   PROXMOX_API_URL   - Proxmox API endpoint
 #   PROXMOX_API_TOKEN - Proxmox API authentication token
-#   DOCKER_HOST_IP - IP of Docker host LXC
-#   SERVICE_NAME - Name of this service
+#   DOCKER_HOST_IP    - IP of Docker host LXC (for Docker deploy)
+#   VM_HOST_IP        - IP of target VM/LXC (for VM deploy)
+#   SERVICE_NAME      - Name of this service
+#   SSH_USER          - User to connect as (default: deploy)
+#   INSTALL_DIR       - Base install directory (default: /opt/services)
 #
 
 set -e  # Exit on error
@@ -35,10 +38,10 @@ echo "🚀 Deploying ${SERVICE_NAME}..."
 # ../../scripts/deploy-lxc.sh
 
 # ============================================================================
-# DEPLOYMENT METHOD 3: Deploy to Existing VM
+# DEPLOYMENT METHOD 3: Deploy to Existing VM (Direct Install)
 # ============================================================================
 #
-# Use this to deploy to an existing VM via SSH
+# Use this to deploy to an existing VM via SSH (Non-Docker)
 #
 # Uncomment to use:
 # ../../scripts/deploy-vm.sh
@@ -59,10 +62,5 @@ echo "3. Test deployment locally first"
 echo "4. Update health-check.sh to validate your service"
 echo ""
 echo "For now, this is a no-op deployment (for template purposes)"
-
-# Example custom deployment:
-# echo "Connecting to target..."
-# ssh user@host "bash -s" < install.sh
-# echo "Deployment complete!"
 
 exit 0
