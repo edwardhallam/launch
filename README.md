@@ -1,8 +1,11 @@
 # Launch 🚀
 
-**Service-Owned Infrastructure for Homelab & Cloud**
+**Self-Service Infrastructure Builder for Enterprise and Homelab**
 
-Launch is a "One Code Check-in" platform. You define your service and its infrastructure in code, push to GitHub, and the platform handles the rest: provisioning VMs, bootstrapping runners, and deploying your application.
+Launch is a modern self-service infrastructure platform that enables zero-touch deployment of web services and MCP servers. By leveraging a monorepo architecture with Terraform, a single code check-in triggers the automated provisioning of infrastructure (VMs/LXCs on Proxmox or AWS), bootstrapping of runners, and deployment of application code. It unifies multi-cloud management into a single, standard developer experience.
+
+**Disclaimer**
+The use of AI was leveraged to help build diagrams, documentation, and some coding guidance. **All code has been written by Edward Hallam**
 
 ## �️ Architecture
 
@@ -34,11 +37,26 @@ graph TD
     EC2 -->|Docker Up| App[Running Service]
 ```
 
-## 📚 Documentation
+## Goals & Objectives
 
-*   **[PRD](docs/PRD.md)**: Detailed architecture and requirements.
-*   **[Setup Guide](docs/SETUP.md)**: How to bootstrap the platform initially.
-*   **[Troubleshooting](docs/TROUBLESHOOTING.md)**: Common issues and fixes.
+### Primary Goals
+1.  **One Code Check-in**: Pushing code + config triggers the entire chain: Provision Infra -> Bootstrap Runner -> Deploy App.
+2.  **Infrastructure as Code (IaC)**: Terraform is the single source of truth for all infrastructure state.
+3.  **Unified Developer Experience**: Same workflow for deploying to a local Proxmox LXC or a production AWS EC2 instance.
+4.  **Zero-Touch Provisioning**: VMs boot, install their own runners, and register themselves without SSH intervention.
+5.  **Automated Networking**: Public services automatically get DNS records (Cloudflare) and SSL.
 
----
-*Built with Terraform, GitHub Actions, Proxmox, and AWS.*
+### Success Metrics
+- **Deployment Time**: < 10 minutes from "Git Push" to "Live URL".
+- **Manual Steps**: 0 (after initial repo setup).
+- **Cost**: Optimized via spot instances or homelab resources where appropriate.
+
+
+
+### Technology Stack
+- **IaC**: Terraform
+- **CI/CD**: GitHub Actions
+- **Compute**: AWS, GCP, Proxmox On-Prem
+- **DNS**: Cloudflare
+- **Containerization**: Docker, Docker Compose
+
