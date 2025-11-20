@@ -1,29 +1,10 @@
-# Launch Platform - Task Tracker
-
-**Last Updated**: 2025-11-18
-**Current Phase**: Phase 1 - Infrastructure as Code Foundation
-
----
-
-## 🎯 Active Sprint
-
-Tasks currently being worked on.
-
-### In Progress
-_No tasks in progress_
-
-### Blocked
-_No blocked tasks_
-
----
-
 ## 📋 Backlog
 
 Tasks prioritized from top to bottom.
 
 ### Phase 1: Infrastructure as Code (The Foundation)
 
-#### [US-013] Infrastructure as Code Foundation with Terraform
+#### [US-001] Infrastructure as Code Foundation with Terraform
 **Status**: In Progress
 **Priority**: P0 (Critical)
 
@@ -42,11 +23,9 @@ Initialize a Terraform setup within the repository (`/infrastructure`) that can 
 - Proxmox Provider configured
 - CI/CD workflow to run `terraform plan` on PRs
 
-**Estimate**: 3-4 hours
-
 ---
 
-#### [US-014] Service Definition via Terraform Modules
+#### [US-002] Service Definition via Terraform Modules
 **Status**: Ready
 **Priority**: P0 (Critical)
 
@@ -64,11 +43,9 @@ Create a reusable Terraform module (`modules/launch-service`) that abstracts the
 - Supports `public` variable (toggles Cloudflare DNS)
 - Validated with both AWS and Proxmox providers
 
-**Estimate**: 4-5 hours
-
 ---
 
-#### [US-015] Automated Runner Registration via Cloud-Init
+#### [US-003] Automated Runner Registration via Cloud-Init
 **Status**: Ready
 **Priority**: P0 (Critical)
 
@@ -89,13 +66,11 @@ Develop a `cloud-init` user-data script template that Terraform will inject into
 - VM successfully registers as a runner upon boot
 - Runner has correct labels applied
 
-**Estimate**: 3-4 hours
-
 ---
 
 ### Phase 2: Application Deployment
 
-#### [US-016] Application Deployment Workflow
+#### [US-004] Application Deployment Workflow
 **Status**: Ready
 **Priority**: P0 (Critical)
 
@@ -115,11 +90,9 @@ Create the GitHub Actions workflow (`.github/workflows/deploy-service.yml`) that
 - Workflow dynamically targets the correct runner using labels
 - Deployment succeeds on the newly provisioned VM
 
-**Estimate**: 2-3 hours
-
 ---
 
-#### [US-017] Secret Injection via GitHub Secrets
+#### [US-005] Secret Injection via GitHub Secrets
 **Status**: Ready
 **Priority**: P1 (High)
 
@@ -135,13 +108,11 @@ Update the deployment workflow to inject secrets directly into the `.env` file o
 - Step added to write secrets to `.env` file securely
 - Service starts successfully with injected configuration
 
-**Estimate**: 1-2 hours
-
 ---
 
 ### Phase 3: Verification & Testing
 
-#### [US-018] Deploy Test Service (Homelab & AWS)
+#### [US-006] Deploy Test Service (Homelab & AWS)
 **Status**: Ready
 **Priority**: P1 (High)
 
@@ -160,11 +131,9 @@ Create a simple "Hello World" service (`services/test-service`) and deploy it to
 - `test-service` running on AWS EC2.
 - Both accessible via HTTP.
 
-**Estimate**: 2 hours
-
 ---
 
-#### [US-019] Verify Update Workflow
+#### [US-007] Verify Update Workflow
 **Status**: Ready
 **Priority**: P1 (High)
 
@@ -178,13 +147,11 @@ Make a visible change to `services/test-service/index.html` and push.
 - **Confidence**: Ensures we can ship updates reliably.
 - **Idempotency**: Proves that re-running the deployment doesn't break things.
 
-**Estimate**: 1 hour
-
 ---
 
 ### Phase 4: Production Services
 
-#### [US-020] Deploy Librechat (Production)
+#### [US-008] Deploy Librechat (Production)
 **Status**: Ready
 **Priority**: P1 (High)
 
@@ -203,16 +170,4 @@ Use the new Terraform + GitHub Actions pipeline to deploy Librechat to AWS.
 - SSL working.
 - Service running on AWS EC2.
 
-**Estimate**: 2 hours
-
 ---
-
-## ✅ Completed
-
-### [TASK-001] Reorganize project structure and implement task tracking
-**Completed**: 2025-11-16
-**Summary**: Successfully reorganized repository with proper folder structure.
-
-### [TASK-000] Update documentation to reflect new priorities and architecture
-**Completed**: 2025-11-18
-**Summary**: Rewrote TASKS.md, updated PRD.md phases, and revised CLAUDE.md for multi-environment deployment.
