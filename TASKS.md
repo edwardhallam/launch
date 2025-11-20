@@ -1,22 +1,3 @@
-# Launch Platform - Task Tracker
-
-**Last Updated**: 2025-11-18
-**Current Phase**: Phase 1 - Infrastructure as Code Foundation
-
----
-
-## 🎯 Active Sprint
-
-Tasks currently being worked on.
-
-### In Progress
-_No tasks in progress_
-
-### Blocked
-_No blocked tasks_
-
----
-
 ## 📋 Backlog
 
 Tasks prioritized from top to bottom.
